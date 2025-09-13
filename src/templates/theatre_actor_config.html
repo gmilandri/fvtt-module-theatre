@@ -52,7 +52,7 @@
                                                 draggable="false" />
                                         {{else}}<img src="{{em.image}}" draggable="false" />{{/if}}
                                     {{else}}<i class="{{em.fatype}} {{em.faname}}"></i>{{/if}}</div>
-                                {{filePicker type="image" target=(cat (cat "flags.theatre.emotes." key) ".insert")}}<input
+                                {{filePicker type="imagevideo" target=(cat (cat "flags.theatre.emotes." key) ".insert")}}<input
                                     class="image" type="text" name="flags.theatre.emotes.{{key}}.insert"
                                     placeholder="{{localize 'Theatre.UI.Config.PathPlaceholder'}}"
                                     value="{{resprop (cat (cat 'object.flags.theatre.emotes.' key) '.insert')}}"

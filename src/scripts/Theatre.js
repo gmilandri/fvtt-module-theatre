@@ -1852,6 +1852,12 @@ export class Theatre {
         // use normal sprite if it's not a gif
         if (!texture.animationSpeed) {
             sprite = new PIXI.Sprite(texture);
+            const source = sprite.texture?.baseTexture?.resource?.source;
+            if (source instanceof HTMLVideoElement) {
+                source.loop = true;
+                source.muted = true;
+                source.play();
+            }
         } else {
             sprite = texture.clone();
         }
@@ -2461,6 +2467,12 @@ export class Theatre {
         // use normal sprite if it's not a gif
         if (!resources[resName].animationSpeed) {
             sprite = new PIXI.Sprite(resources[resName]);
+            const source = sprite.texture?.baseTexture?.resource?.source;
+            if (source instanceof HTMLVideoElement) {
+                source.loop = true;
+                source.muted = true;
+                source.play();
+            }
         } else {
             sprite = resources[resName].clone();
         }
