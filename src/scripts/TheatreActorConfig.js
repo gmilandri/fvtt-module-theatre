@@ -338,6 +338,8 @@ export class TheatreActorConfig extends FormApplication {
         }
         // send the emote parent in bulk to get rid of unwanted children
         revisedFormData["flags.theatre.emotes"] = nEmotes;
+        // merge explicit emote updates such as deletions into final payload
+        foundry.utils.mergeObject(revisedFormData, emoteFormData);
         Logger.debug("Final Push Config update:", revisedFormData);
 
         this.object.update(revisedFormData).then((response) => {
@@ -518,7 +520,8 @@ export class TheatreActorConfig extends FormApplication {
         KHelpers.addClass(fileIcon, "fas");
         KHelpers.addClass(fileIcon, "fa-file-import");
         KHelpers.addClass(fileIcon, "fa-fw");
-        KHelpers.addClass(fileInput, "image");
+        // Allow both images and videos to be selected for custom emote inserts
+        KHelpers.addClass(fileInput, "imagevideo");
         //KHelpers.addClass(editEmoteButton,"theatre-config-btn-edit-emote");
         //KHelpers.addClass(editEmoteIcon,"fas");
         //KHelpers.addClass(editEmoteIcon,"fa-sliders-h");
@@ -533,7 +536,8 @@ export class TheatreActorConfig extends FormApplication {
         emoteNameInput.addEventListener("focusout", this._onCustomLabelInputFocusOut.bind(this));
 
         fileButton.setAttribute("type", "button");
-        fileButton.setAttribute("data-type", "image");
+        // Use imagevideo to enable selecting videos in addition to images
+        fileButton.setAttribute("data-type", "imagevideo");
         fileButton.setAttribute("data-target", `flags.theatre.emotes.${customName}.insert`);
         fileButton.setAttribute("title", "Browse Files");
         fileButton.setAttribute("tabindex", "-1");
