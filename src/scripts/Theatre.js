@@ -703,7 +703,7 @@ export class Theatre {
         Logger.debug("Processing resync request");
         // If the dock is not active, no need to send anything
         if (type == "any" && this.dockActive <= 0 && !this.isNarratorActive) {
-            Logger.warn("OUR DOCK IS NOT ACTIVE, Not responding to reqresync");
+            Logger.debug("Dock not active; ignoring resync request");
             return;
         } else if (type == "gm" && !game.user.isGM) {
             return;

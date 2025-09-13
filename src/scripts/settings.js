@@ -3,6 +3,9 @@ import { TheatreHelpers } from "./theatre-helpers.js";
 import CONSTANTS from "./constants/constants.js";
 import Logger from "./lib/Logger.js";
 
+// Prefer Application framework V2 when available to avoid deprecation warnings
+const BaseFormApplication = foundry.applications?.api?.FormApplication ?? FormApplication;
+
 export const registerSettings = function () {
     let settingsCustom = {};
     // game.settings.registerMenu(CONSTANTS.MODULE_ID, "resetAllSettings", {
@@ -302,7 +305,7 @@ export const registerSettings = function () {
     return settingsCustom;
 };
 
-class ResetSettingsDialog extends FormApplication {
+class ResetSettingsDialog extends BaseFormApplication {
     constructor(...args) {
         //@ts-ignore
         super(...args);
