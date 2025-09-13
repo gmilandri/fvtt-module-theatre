@@ -5249,7 +5249,7 @@ export class Theatre {
         let textFlyin = Theatre.FLYIN_ANIMS;
         let textStanding = Theatre.STANDING_ANIMS;
         let sideBar = document.getElementById("sidebar");
-        renderTemplate("modules/theatre/templates/emote_menu.html", {
+        foundry.applications.handlebars.renderTemplate("modules/theatre/templates/emote_menu.html", {
             emotes,
             textFlyin,
             textStanding,
