@@ -56,6 +56,8 @@ export class Theatre {
             // render related
             this.rendering = false;
             this.renderAnims = 0;
+            this.renderVideos = 0;
+            this.tooltipHasVideo = false;
             // global insert state related
             this.speakingAs = null;
             // Map of theatreId to TheatreActor
@@ -1830,6 +1832,11 @@ export class Theatre {
 
         let app = this.pixiToolTipCTX;
 
+        if (this.tooltipHasVideo) {
+            this.renderVideos--;
+            this.tooltipHasVideo = false;
+        }
+
         // clear canvas
         for (let idx = app.stage.children.length - 1; idx >= 0; --idx) {
             let child = app.stage.children[idx];
@@ -1848,18 +1855,27 @@ export class Theatre {
         app.stage.addChild(portraitContainer);
         app.stage.addChild(dockContainer);
 
-        let sprite = texture;
+        let sprite;
+        let source;
         // use normal sprite if it's not a gif
         if (!texture.animationSpeed) {
             sprite = new PIXI.Sprite(texture);
-            const source = sprite.texture?.baseTexture?.resource?.source;
-            if (source instanceof HTMLVideoElement) {
-                source.loop = true;
-                source.muted = true;
-                source.play();
-            }
+            source = sprite.texture?.baseTexture?.resource?.source;
         } else {
             sprite = texture.clone();
+            source = sprite.texture?.baseTexture?.resource?.source;
+        }
+        if (source instanceof HTMLVideoElement) {
+            source.loop = true;
+            source.muted = true;
+            source.play();
+            this.renderVideos++;
+            this.tooltipHasVideo = true;
+            if (!this.rendering) {
+                Logger.debug("RENDERING LOOP STARTED");
+                this.rendering = true;
+                this._renderTheatre(performance.now());
+            }
         }
         let portWidth = texture.width;
         let portHeight = texture.height;
@@ -2164,7 +2180,7 @@ export class Theatre {
                 this._destroyPortraitDock(insert.imgId);
             }
         }
-        if (this.renderAnims > 0) {
+        if (this.renderAnims > 0 || this.renderVideos > 0) {
             requestAnimationFrame(this._renderTheatre.bind(this));
         } else {
             Logger.debug("RENDERING LOOP STOPPED");
@@ -2261,6 +2277,10 @@ export class Theatre {
     _destroyPortraitDock(imgId) {
         let app = this.pixiCTX;
         let insert = this.getInsertById(imgId);
+        if (insert?.hasVideo) {
+            this.renderVideos--;
+            insert.hasVideo = false;
+        }
         if (insert && insert.dockContainer) {
             // kill and release all tweens
             for (let tweenId in insert.tweens) this._removeDockTween(imgId, null, tweenId);
@@ -2463,18 +2483,32 @@ export class Theatre {
         let dockContainer = insert.dockContainer;
         let portraitContainer = insert.portraitContainer;
 
-        let sprite = resources[resName];
+        if (insert.hasVideo) {
+            this.renderVideos--;
+            insert.hasVideo = false;
+        }
+
+        let sprite;
+        let source;
         // use normal sprite if it's not a gif
         if (!resources[resName].animationSpeed) {
             sprite = new PIXI.Sprite(resources[resName]);
-            const source = sprite.texture?.baseTexture?.resource?.source;
-            if (source instanceof HTMLVideoElement) {
-                source.loop = true;
-                source.muted = true;
-                source.play();
-            }
+            source = sprite.texture?.baseTexture?.resource?.source;
         } else {
             sprite = resources[resName].clone();
+            source = sprite.texture?.baseTexture?.resource?.source;
+        }
+        if (source instanceof HTMLVideoElement) {
+            source.loop = true;
+            source.muted = true;
+            source.play();
+            insert.hasVideo = true;
+            this.renderVideos++;
+            if (!this.rendering) {
+                Logger.debug("RENDERING LOOP STARTED");
+                this.rendering = true;
+                this._renderTheatre(performance.now());
+            }
         }
         let portWidth = resources[resName].width;
         let portHeight = resources[resName].height;
