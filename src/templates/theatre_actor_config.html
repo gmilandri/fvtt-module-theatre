@@ -15,10 +15,9 @@
                         value="{{object.flags.theatre.name}}" /></div>
                 <p class="notes"> {{localize "Theatre.UI.Config.SetTopAlign"}}</p>
                 <div class="form-group"><select name="flags.theatre.optalign"
-                        data-dtype="String">{{#select object.flags.theatre.optalign}}
-                            <option value="top">{{localize "Theatre.UI.Config.SetTopAlignTop"}}</option>
-                            <option value="bottom">{{localize "Theatre.UI.Config.SetTopAlignBottom"}}</option>
-                        {{/select}}</select></div>
+                        data-dtype="String">
+                            {{selectOptions alignChoices selected=object.flags.theatre.optalign localize=true}}
+                        </select></div>
                 <p class="notes"> {{localize "Theatre.UI.Config.SetDefaultInsert"}}</p>
                 <div class="form-group">
                     <label>{{localize "Theatre.UI.Config.BaseInsert"}}</label>{{filePicker type="imagevideo" target="flags.theatre.baseinsert"}}<input

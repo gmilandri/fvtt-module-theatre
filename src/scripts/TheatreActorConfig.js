@@ -23,6 +23,9 @@ import { Theatre } from "./Theatre.js";
 import CONSTANTS from "./constants/constants.js";
 import Logger from "./lib/Logger.js";
 
+// Use Application framework V2 when available to avoid deprecation warnings
+const TheatreFormApplication = foundry.applications?.api?.FormApplication ?? FormApplication;
+
 /**
  * ============================================================
  * Application to configure Actor Theatre-Inserts
@@ -33,7 +36,7 @@ import Logger from "./lib/Logger.js";
  *
  * ============================================================
  */
-export class TheatreActorConfig extends FormApplication {
+export class TheatreActorConfig extends TheatreFormApplication {
     constructor(object = {}, options = {}) {
         if (object._theatre_mod_configTab) {
             options.tabs = [
@@ -77,12 +80,17 @@ export class TheatreActorConfig extends FormApplication {
      */
     getData() {
         const entityName = this.object.name;
+        const alignChoices = {
+            top: "Theatre.UI.Config.SetTopAlignTop",
+            bottom: "Theatre.UI.Config.SetTopAlignBottom",
+        };
         return {
             entityName: entityName,
             isGM: game.user.isGM,
             object: foundry.utils.duplicate(this.object),
             emote: Theatre.getActorEmotes(this.object._id),
             options: this.options,
+            alignChoices: alignChoices,
         };
     }
 
