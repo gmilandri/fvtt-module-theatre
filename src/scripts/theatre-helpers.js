@@ -2953,10 +2953,19 @@ export class TheatreHelpers {
             return;
         }
         const chatMessage = document.getElementById("chat-message");
-        const isChatOutsideChatLog = chatMessage.parentElement.id === "chat-notifications";
+        const isChatOutsideChatLog = chatMessage?.parentElement?.id === "chat-notifications";
 
         // Give time to sidebar to finish collapsing
         window.setTimeout(() => {
+            const instance = Theatre.instance;
+            if (
+                !instance?.theatreBar ||
+                !instance.theatreNarrator ||
+                !instance.theatreEmoteMenu ||
+                !instance.theatreControls
+            ) {
+                return;
+            }
             let sideBar = document.getElementById("sidebar");
             let mainRightColumn = document.getElementById("ui-right");
             let primeBar = document.getElementById("theatre-prime-bar");
@@ -2965,21 +2974,21 @@ export class TheatreHelpers {
             if (!collapsed && !isChatOutsideChatLog) {
                 calculatedWidth = sideBar.offsetWidth + 2;
             }
-            Theatre.instance.theatreBar.style.width = `calc(100% - ${calculatedWidth}px)`;
-            Theatre.instance.theatreNarrator.style.width = `calc(100% - ${calculatedWidth}px)`;
-            if (!collapsed && Theatre.instance._getTextBoxes().length === 2) {
-                let dualWidth = Math.min(Math.floor(Theatre.instance.theatreBar.offsetWidth / 2), 650);
+            instance.theatreBar.style.width = `calc(100% - ${calculatedWidth}px)`;
+            instance.theatreNarrator.style.width = `calc(100% - ${calculatedWidth}px)`;
+            if (!collapsed && instance._getTextBoxes().length === 2) {
+                let dualWidth = Math.min(Math.floor(instance.theatreBar.offsetWidth / 2), 650);
                 primeBar.style.width = `${dualWidth}px`;
                 secondBar.style.width = `${dualWidth}px`;
                 secondBar.style.left = `calc(100% - ${dualWidth}px)`;
             }
-            Theatre.instance.theatreEmoteMenu.style.top = `${Theatre.instance.theatreControls.offsetTop - 410}px`;
-            if (Theatre.instance.reorderTOId) {
-                window.clearTimeout(Theatre.instance.reorderTOId);
+            instance.theatreEmoteMenu.style.top = `${instance.theatreControls.offsetTop - 410}px`;
+            if (instance.reorderTOId) {
+                window.clearTimeout(instance.reorderTOId);
             }
-            Theatre.instance.reorderTOId = window.setTimeout(() => {
+            instance.reorderTOId = window.setTimeout(() => {
                 Theatre.reorderInserts();
-                Theatre.instance.reorderTOId = null;
+                instance.reorderTOId = null;
             }, 250);
         }, 250);
     }
