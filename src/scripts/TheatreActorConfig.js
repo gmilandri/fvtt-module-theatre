@@ -581,7 +581,7 @@ export class TheatreActorConfig extends FormApplication {
     _onCustomIconImage(ev) {
         let target = ev.currentTarget;
         new FilePicker({
-            type: "image",
+            type: "imagevideo",
             current: target.getAttribute("src"),
             callback: (path) => {
                 target.src = path;
