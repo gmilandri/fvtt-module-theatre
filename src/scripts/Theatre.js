@@ -98,7 +98,7 @@ export class Theatre {
         removeFromNavBar: (actor) => Theatre.removeFromNavBar(actor),
         activateStagedByID: (i) => {
             const ids = Object.keys(Theatre.instance.stage);
-            Theatre.instance.activateInsertById(ids[i]);
+            Theatre.instance.toggleInsertById(ids[i]);
             document.getElementById("chat-message").blur();
         },
         removeFromStagedByID: (i) => {
@@ -4806,12 +4806,12 @@ export class Theatre {
     }
 
     /**
-     * Activate an insert by Id, if it is staged to the navbar
+     * Toggle an insert by Id, if it is staged to the navbar
      *
-     * @params id (String) : The theatreId of the insert to activate.
+     * @params id (String) : The theatreId of the insert to toggle.
      * @params ev (Event) : The event that possibly triggered this activation.
      */
-    async activateInsertById(id, ev) {
+    async toggleInsertById(id, ev) {
         let actorId = id.replace(CONSTANTS.PREFIX_ACTOR_ID, "");
         let navItem = this.getNavItemById(id);
         if (!navItem) {
@@ -4960,6 +4960,17 @@ export class Theatre {
         this.setUserTyping(game.user.id, this.speakingAs);
         // re-render the emote menu (expensive)
         this.renderEmoteMenu();
+    }
+
+    /**
+     * Activate an insert by Id without toggling it off if already active
+     *
+     * @params id (String) : The theatreId of the insert to activate.
+     * @params ev (Event) : The event that possibly triggered this activation.
+     */
+    async activateInsertById(id, ev) {
+        if (this.speakingAs === id) return;
+        return this.toggleInsertById(id, ev);
     }
 
     /**
@@ -6139,7 +6150,7 @@ export class Theatre {
             } else if (ev.altKey) {
                 // activate navitem
                 // activate insert
-                Theatre.instance.activateInsertById(id, ev);
+                Theatre.instance.toggleInsertById(id, ev);
             }
         } else if (ev.button == 2) {
             if (ev.ctrlKey) {
@@ -6238,7 +6249,7 @@ export class Theatre {
 
         switch (ev.button) {
             case 0:
-                Theatre.instance.activateInsertById(id, ev);
+                Theatre.instance.toggleInsertById(id, ev);
                 break;
             case 2:
                 let removed = Theatre.instance.removeInsertById(id);
