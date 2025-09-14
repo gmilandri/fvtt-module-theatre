@@ -221,65 +221,63 @@ Hooks.on("preCreateChatMessage", function (chatMessage, data) {
         return;
     }
 
-    if (Theatre.instance.speakingAs && Theatre.instance.usersTyping[messageUserId]) {
-        let theatreId = Theatre.instance.usersTyping[messageUserId]?.theatreId;
-        if (theatreId) {
-            let insert = Theatre.instance.getInsertById(theatreId);
-            let actorId = theatreId.replace(CONSTANTS.PREFIX_ACTOR_ID, "");
-            let actor = game.actors.get(actorId) || null;
-            Logger.debug("speakingAs %s", theatreId);
-
-            if (insert && chatMessage.speaker) {
-                let label = Theatre.instance._getLabelFromInsert(insert);
-                let name = label.text;
-                let theatreColor = Theatre.instance.getPlayerFlashColor(messageUserId, insert.textColor);
-                Logger.debug("name is %s", name);
-                chatData.speaker.alias = name;
-                // ChatData.flags.theatreColor = theatreColor;
-                if (foundry.utils.isNewerVersion(game.version, 12)) {
-                    chatData.style = CONST.CHAT_MESSAGE_STYLES.IC;
-                } else {
-                    chatData.type = CONST.CHAT_MESSAGE_TYPES.IC;
-                }
-                // If delay emote is active
-                if (Theatre.instance.isDelayEmote && Theatre.instance.delayedSentState === 1) {
-                    Logger.debug("setting emote now! as %s", insert.emote);
-                    Theatre.instance.delayedSentState = 2;
-                    Theatre.instance.setUserEmote(game.user._id, theatreId, "emote", insert.emote, false);
-                    Theatre.instance.delayedSentState = 0;
-                }
-            } else if (insert) {
-                let label = Theatre.instance._getLabelFromInsert(insert);
-                let name = label.text;
-                let theatreColor = Theatre.instance.getPlayerFlashColor(messageUserId, insert.textColor);
-                chatData.speaker.alias = name;
-                // ChatData.flags.theatreColor = theatreColor;
-                if (foundry.utils.isNewerVersion(game.version, 12)) {
-                    chatData.style = CONST.CHAT_MESSAGE_STYLES.IC;
-                } else {
-                    chatData.type = CONST.CHAT_MESSAGE_TYPES.IC;
-                }
-                // If delay emote is active
-                if (Theatre.instance.isDelayEmote && Theatre.instance.delayedSentState === 1) {
-                    Logger.debug("setting emote now! as %s", insert.emote);
-                    Theatre.instance.delayedSentState = 2;
-                    Theatre.instance.setUserEmote(game.user._id, theatreId, "emote", insert.emote, false);
-                    Theatre.instance.delayedSentState = 0;
-                }
-            } else if (Theatre.instance.speakingAs === CONSTANTS.NARRATOR) {
-                chatData.speaker.alias = game.i18n.localize("Theatre.UI.Chat.Narrator");
-                if (foundry.utils.isNewerVersion(game.version, 12)) {
-                    chatData.style = CONST.CHAT_MESSAGE_STYLES.IC;
-                } else {
-                    chatData.type = CONST.CHAT_MESSAGE_TYPES.IC;
-                }
+    let theatreId = Theatre.instance.usersTyping[messageUserId]?.theatreId ?? Theatre.instance.speakingAs;
+    if (Theatre.instance.speakingAs && theatreId) {
+        let insert =
+            Theatre.instance.getInsertById(theatreId) || Theatre.instance.getInsertByName(chatMessage.speaker?.alias);
+        let actorId = theatreId.replace(CONSTANTS.PREFIX_ACTOR_ID, "");
+        let actor = game.actors.get(actorId) || null;
+        Logger.debug("speakingAs %s", theatreId);
+        if (insert && chatMessage.speaker) {
+            let label = Theatre.instance._getLabelFromInsert(insert);
+            let name = label.text;
+            let theatreColor = Theatre.instance.getPlayerFlashColor(messageUserId, insert.textColor);
+            Logger.debug("name is %s", name);
+            chatData.speaker.alias = name;
+            // ChatData.flags.theatreColor = theatreColor;
+            if (foundry.utils.isNewerVersion(game.version, 12)) {
+                chatData.style = CONST.CHAT_MESSAGE_STYLES.IC;
+            } else {
+                chatData.type = CONST.CHAT_MESSAGE_TYPES.IC;
             }
-
-            if (!chatData.flags) {
-                chatData.flags = {};
+            // If delay emote is active
+            if (Theatre.instance.isDelayEmote && Theatre.instance.delayedSentState === 1) {
+                Logger.debug("setting emote now! as %s", insert.emote);
+                Theatre.instance.delayedSentState = 2;
+                Theatre.instance.setUserEmote(game.user._id, theatreId, "emote", insert.emote, false);
+                Theatre.instance.delayedSentState = 0;
             }
-            chatData.flags[CONSTANTS.MODULE_ID] = { theatreMessage: true };
+        } else if (insert) {
+            let label = Theatre.instance._getLabelFromInsert(insert);
+            let name = label.text;
+            let theatreColor = Theatre.instance.getPlayerFlashColor(messageUserId, insert.textColor);
+            chatData.speaker.alias = name;
+            // ChatData.flags.theatreColor = theatreColor;
+            if (foundry.utils.isNewerVersion(game.version, 12)) {
+                chatData.style = CONST.CHAT_MESSAGE_STYLES.IC;
+            } else {
+                chatData.type = CONST.CHAT_MESSAGE_TYPES.IC;
+            }
+            // If delay emote is active
+            if (Theatre.instance.isDelayEmote && Theatre.instance.delayedSentState === 1) {
+                Logger.debug("setting emote now! as %s", insert.emote);
+                Theatre.instance.delayedSentState = 2;
+                Theatre.instance.setUserEmote(game.user._id, theatreId, "emote", insert.emote, false);
+                Theatre.instance.delayedSentState = 0;
+            }
+        } else if (Theatre.instance.speakingAs === CONSTANTS.NARRATOR) {
+            chatData.speaker.alias = game.i18n.localize("Theatre.UI.Chat.Narrator");
+            if (foundry.utils.isNewerVersion(game.version, 12)) {
+                chatData.style = CONST.CHAT_MESSAGE_STYLES.IC;
+            } else {
+                chatData.type = CONST.CHAT_MESSAGE_TYPES.IC;
+            }
         }
+
+        if (!chatData.flags) {
+            chatData.flags = {};
+        }
+        chatData.flags[CONSTANTS.MODULE_ID] = { theatreMessage: true };
     }
     // Alter message data
     // append chat emote braces
@@ -304,14 +302,13 @@ Hooks.on("preCreateChatMessage", function (chatMessage, data) {
  */
 Hooks.on("createChatMessage", function (chatEntity, _, userId) {
     Logger.debug("createChatMessage");
-    let theatreId = null;
+    let theatreId = Theatre.instance.usersTyping[userId]?.theatreId ?? Theatre.instance.speakingAs;
 
     // If theatre isn't even ready, then just no
     if (!Theatre.instance) {
         return;
     }
     if (Theatre.instance.usersTyping[userId]) {
-        theatreId = Theatre.instance.usersTyping[userId].theatreId;
         Theatre.instance.removeUserTyping(userId);
     }
 
@@ -332,8 +329,9 @@ Hooks.on("createChatMessage", function (chatEntity, _, userId) {
     ) {
         return;
     }
-    let textBox = Theatre.instance.getTextBoxById(theatreId);
-    let insert = Theatre.instance.getInsertById(theatreId);
+    let textBox =
+        Theatre.instance.getTextBoxById(theatreId) || Theatre.instance.getTextBoxByName(chatData.speaker?.alias);
+    let insert = Theatre.instance.getInsertById(theatreId) || Theatre.instance.getInsertByName(chatData.speaker?.alias);
     let charSpans = [];
     let textContent = chatData.content;
 
