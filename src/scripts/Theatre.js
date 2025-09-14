@@ -2384,7 +2384,7 @@ export class Theatre {
             typingBubble: null,
             exitOrientation: isLeft ? "left" : "right",
             nameOrientation: "left",
-            mirrored: false,
+            mirrored: isLeft,
             optAlign: optAlign,
             tweens: {},
             order: 0,
