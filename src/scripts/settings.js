@@ -606,7 +606,7 @@ export const registerKeybindings = function () {
             onDown: () => {
                 const ids = Object.keys(Theatre.instance.stage);
                 const id = ids[i - 1];
-                if (id) Theatre.instance.activateInsertById(id);
+                if (id) Theatre.instance.toggleInsertById(id);
 
                 document.getElementById("chat-message").blur();
             },
