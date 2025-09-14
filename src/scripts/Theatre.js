@@ -1868,6 +1868,8 @@ export class Theatre {
         if (source instanceof HTMLVideoElement) {
             source.loop = true;
             source.muted = true;
+            source.pause();
+            source.currentTime = 0;
             source.play();
             this.renderVideos++;
             this.tooltipHasVideo = true;
@@ -2278,6 +2280,11 @@ export class Theatre {
         let app = this.pixiCTX;
         let insert = this.getInsertById(imgId);
         if (insert?.hasVideo) {
+            const prevSource = insert.portrait?.texture?.baseTexture?.resource?.source;
+            if (prevSource instanceof HTMLVideoElement) {
+                prevSource.pause();
+                prevSource.currentTime = 0;
+            }
             this.renderVideos--;
             insert.hasVideo = false;
         }
@@ -2484,6 +2491,11 @@ export class Theatre {
         let portraitContainer = insert.portraitContainer;
 
         if (insert.hasVideo) {
+            const prevSource = insert.portrait?.texture?.baseTexture?.resource?.source;
+            if (prevSource instanceof HTMLVideoElement) {
+                prevSource.pause();
+                prevSource.currentTime = 0;
+            }
             this.renderVideos--;
             insert.hasVideo = false;
         }
@@ -2501,6 +2513,8 @@ export class Theatre {
         if (source instanceof HTMLVideoElement) {
             source.loop = true;
             source.muted = true;
+            source.pause();
+            source.currentTime = 0;
             source.play();
             insert.hasVideo = true;
             this.renderVideos++;
