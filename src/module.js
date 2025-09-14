@@ -202,9 +202,14 @@ Hooks.on("preCreateChatMessage", function (chatMessage, data) {
         return;
     }
 
+    // PF2e v12 migrated ChatMessage#user to ChatMessage#author. Use the new
+    // property when available to avoid deprecation warnings but fall back to
+    // the old one for backwards compatibility.
+    const messageUserId = chatMessage.author?.id ?? chatMessage.user?.id;
+
     // Make the message OOC if needed
     if ($(theatre.theatreChatCover).hasClass("theatre-control-chat-cover-ooc")) {
-        const user = game.users.get(chatMessage.user.id);
+        const user = game.users.get(messageUserId);
         chatData.speaker.alias = user.name;
         if (foundry.utils.isNewerVersion(game.version, 12)) {
             chatData.style = CONST.CHAT_MESSAGE_STYLES.OOC;
@@ -216,8 +221,8 @@ Hooks.on("preCreateChatMessage", function (chatMessage, data) {
         return;
     }
 
-    if (Theatre.instance.speakingAs && Theatre.instance.usersTyping[chatMessage.user.id]) {
-        let theatreId = Theatre.instance.usersTyping[chatMessage.user.id]?.theatreId;
+    if (Theatre.instance.speakingAs && Theatre.instance.usersTyping[messageUserId]) {
+        let theatreId = Theatre.instance.usersTyping[messageUserId]?.theatreId;
         if (theatreId) {
             let insert = Theatre.instance.getInsertById(theatreId);
             let actorId = theatreId.replace(CONSTANTS.PREFIX_ACTOR_ID, "");
@@ -227,7 +232,7 @@ Hooks.on("preCreateChatMessage", function (chatMessage, data) {
             if (insert && chatMessage.speaker) {
                 let label = Theatre.instance._getLabelFromInsert(insert);
                 let name = label.text;
-                let theatreColor = Theatre.instance.getPlayerFlashColor(chatMessage.user.id, insert.textColor);
+                let theatreColor = Theatre.instance.getPlayerFlashColor(messageUserId, insert.textColor);
                 Logger.debug("name is %s", name);
                 chatData.speaker.alias = name;
                 // ChatData.flags.theatreColor = theatreColor;
@@ -246,7 +251,7 @@ Hooks.on("preCreateChatMessage", function (chatMessage, data) {
             } else if (insert) {
                 let label = Theatre.instance._getLabelFromInsert(insert);
                 let name = label.text;
-                let theatreColor = Theatre.instance.getPlayerFlashColor(chatData.user, insert.textColor);
+                let theatreColor = Theatre.instance.getPlayerFlashColor(messageUserId, insert.textColor);
                 chatData.speaker.alias = name;
                 // ChatData.flags.theatreColor = theatreColor;
                 if (foundry.utils.isNewerVersion(game.version, 12)) {
